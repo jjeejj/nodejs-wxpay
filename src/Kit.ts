@@ -2,7 +2,7 @@
  * @Author: jiangwenjun
  * @Email: jiangwenjun@tuzhanai.com
  * @Date: 2020-09-23 14:13:51
- * @LastEditTime: 2020-09-23 16:57:02
+ * @LastEditTime: 2020-09-24 17:22:58
  * @LastEditors: Please set LastEditors
  * @FilePath: \utils-lib\wxpay\src\Kit.ts
  * @Description: 基础的工具方法
@@ -39,7 +39,7 @@ export class Kit {
    * @param {string} data 需要验证的字符串
    * @memberof Kit
    */
-  public static sha256WithRsaVerify(publicKey: Buffer, signature: string, data: string) {
+  public static sha256WithRsaVerify(publicKey: Buffer, signature: string, data: string): boolean {
     return crypto
       .createVerify("RSA-SHA256")
       .update(data)
@@ -66,6 +66,45 @@ export class Kit {
     let decryptStr = decipherIv.update(data, undefined, "utf8");
     decipherIv.final();
     return decryptStr;
+  }
+
+  /**
+   * RSA padding: RSAES-OAEP 公钥加密
+   * @static
+   * @param {Buffer} data
+   * @param {Buffer} publickKey
+   * @memberof Kit
+   */
+  public static rsaesOAEPEncrypt(data: Buffer, publickKey: Buffer): string {
+    return crypto
+      .publicEncrypt(
+        {
+          padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+          key: publickKey,
+          oaepHash: "rsa",
+        },
+        data
+      )
+      .toString("base64");
+  }
+
+  /**
+   * RSA padding: RSAES-OAEP 私钥解密
+   * @static
+   * @param {string} data
+   * @param {Buffer} privateKey
+   * @memberof Kit
+   */
+  public static rsaesOAEPDecrypt(data: Buffer, privateKey: Buffer): string {
+    return crypto
+      .privateEncrypt(
+        {
+          key: privateKey,
+          padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        },
+        data
+      )
+      .toString();
   }
 
   /**

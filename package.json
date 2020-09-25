@@ -1,13 +1,16 @@
 {
   "name": "@gz/wxpay",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "微信支付支付 SDK",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "prepublish": "npm run build"
   },
   "keywords": [],
-  "author": "",
+  "author": "jiangwenjun",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.20.0",

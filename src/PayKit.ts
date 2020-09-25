@@ -2,7 +2,7 @@
  * @Author: jiangwenjun
  * @Email: jiangwenjun@tuzhanai.com
  * @Date: 2020-09-23 14:08:45
- * @LastEditTime: 2020-09-23 18:00:32
+ * @LastEditTime: 2020-09-24 17:26:15
  * @LastEditors: Please set LastEditors
  * @FilePath: \utils-lib\wxpay\src\PayKit.ts
  * @Description: 微信支付工具类
@@ -86,6 +86,27 @@ export class WxPayKit {
   }
 
   /**
+   * 验证 微信响应签名
+   * @static
+   * @param {string} signature 响应签名
+   * @param {string} body 响应头数据
+   * @param {string} nonce 响应随机数
+   * @param {string} timestamp 响应时间戳
+   * @param {Buffer} publicKey 微信平台证书的公钥
+   * @returns {boolean}
+   * @memberof WxPayKit
+   */
+  public static verifySignature(
+    signature: string,
+    body: string,
+    nonce: string,
+    timestamp: string,
+    publicKey: Buffer
+  ): boolean {
+    let buildSignMessage: string = this.buildRepSignMessage(timestamp, nonce, body);
+    return Kit.sha256WithRsaVerify(publicKey, signature, buildSignMessage);
+  }
+  /**
    * 构建请求签名参数
    * @param method {RequestMethod} Http 请求方式
    * @param url 请求接口 /v3/certificates
@@ -101,6 +122,19 @@ export class WxPayKit {
     body: string
   ): string {
     return this.buildSignMessage([method, url, timestamp, nonceStr, body]);
+  }
+
+  /**
+   * 构建响应签名参数
+   * @static
+   * @param {string} timestamp 应答时间戳
+   * @param {string} nonceStr 应答随机串
+   * @param {string} body 应答报文主体
+   * @returns {string}
+   * @memberof WxPayKit
+   */
+  public static buildRepSignMessage(timestamp: string, nonceStr: string, body: string): string {
+    return this.buildSignMessage([timestamp, nonceStr, body]);
   }
 
   /**
@@ -120,7 +154,7 @@ export class WxPayKit {
   }
 
   /**
-   * 创建签名
+   * 创建请求签名
    * @static
    * @param {string} data 需要签名的数据
    * @param {Buffer} key 签名的私钥 key.pem
@@ -146,6 +180,32 @@ export class WxPayKit {
     return Kit.aes256gcmDecrypt(key, nonce, associatedData, ciphertext);
   }
 
+  /**
+   * 加密敏感信息
+   * @static
+   * @param {(string | object)} data 待加密的数据
+   * @param {Buffer} publicKey 微信平台证书的公钥
+   * @returns {string}
+   * @memberof WxCommon
+   */
+  public static encodeSensitiveData(data: string | object, publicKey: Buffer): string {
+    if (typeof data == "object") {
+      data = JSON.stringify(data);
+    }
+    return Kit.rsaesOAEPEncrypt(Buffer.from(data), publicKey);
+  }
+
+  /**
+   * 加密敏感信息
+   * @static
+   * @param {string} data 待解密的数据
+   * @param {Buffer} privateKey 商户平台证书的是私钥
+   * @returns {string}
+   * @memberof WxCommon
+   */
+  public static decodeSensitiveData(data: string, privateKey: Buffer): string {
+    return Kit.rsaesOAEPDecrypt(Buffer.from(data), privateKey);
+  }
   /**
    * 微信支付 Api-v3 get 请求
    * @static

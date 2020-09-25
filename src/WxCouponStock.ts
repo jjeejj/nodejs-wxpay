@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
  * @Author: jiangwenjun
  * @Email: jiangwenjun@tuzhanai.com
  * @Date: 2020-09-23 14:05:25
- * @LastEditTime: 2020-09-23 18:07:13
+ * @LastEditTime: 2020-09-24 14:46:48
  * @LastEditors: Please set LastEditors
  * @FilePath: \utils-lib\wxpay\src\WxCouponStock.ts
  * @Description: 代金券 API
@@ -36,6 +36,17 @@ interface CALLBACK_URL {
   switch?: boolean; // 如果商户不需要再接收营销事件通知，可通过该开关关闭
 }
 export class WxCouponStock {
+  /**
+   * 发送代金券
+   * @static
+   * @param {SEND_COUPONS} body 请求体
+   * @param {string} openid 用户的 openID
+   * @param {string} mchId 商户号 ID
+   * @param {string} serialNo 商户号证书序列号
+   * @param {Buffer} key 商户号私钥
+   * @returns
+   * @memberof WxCouponStock
+   */
   public static async sendCoupons(body: SEND_COUPONS, openid: string, mchId: string, serialNo: string, key: Buffer) {
     return await WxPayKit.execPost(
       WX_DOMAIN.CHINA,
